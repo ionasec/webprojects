@@ -29,3 +29,29 @@ aws lightsail get-container-services --service-name flask-service
 #Cleanup
 aws lightsail delete-container-service --service-name flask-service
 
+Part 2
+https://thecodinginterface.com/blog/aws-sam-serverless-rest-api-with-flask/
+
+https://medium.com/swlh/deploying-a-python-flask-application-to-aws-lambda-with-serverless-framework-and-circleci-3f57437f0758
+
+Prerequisits
+#https://www.serverless.com/ - platfrom agnostic (AWS SAM Severless Application Model is AWS only)
+npm install -g serverless
+
+#plugins required for your Flask application in the context of Serverless Framework
+npm install serverless-wsgi serverless-python-requirements --save-dev
+
+#AWS Serverless Application Model CLI
+https://github.com/awslabs/aws-sam-cli/releases/latest/download/AWS_SAM_CLI_64_PY3.msi
+
+
+
+sam build --region eu-central-1
+
+sam deploy --stack-name flask-aws --guided 
+
+aws cloudformation delete-stack --stack-name flask-aws
+
+
+
+http -j POST https://warw1v5s2e.execute-api.eu-central-1.amazonaws.com/Prod/lists "Authorization:bearer 12345" name=Groceries items:='[{"name":"milk", "completed":false},{"name":"cookies", "completed":false}]'
