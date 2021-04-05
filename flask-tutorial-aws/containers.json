@@ -1,0 +1,8 @@
+{
+    "flask": {
+        "image": ":flask-service.raz-flask-tutorial.3",
+        "ports": {
+            "8080": "HTTP"
+        }
+    }
+}
