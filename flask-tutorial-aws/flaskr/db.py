@@ -13,6 +13,7 @@ def get_db():
         )
         g.db.row_factory = sqlite3.Row
 
+    print(current_app.config['AWS_BUCKET_NAME'])
     return g.db
 
 
