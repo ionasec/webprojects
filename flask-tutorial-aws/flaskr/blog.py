@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
-from flaskr.image import get_image_folder,allowed_file
+from flaskr.s3 import get_image_folder,allowed_file
 from flask import current_app, g
 
 import os

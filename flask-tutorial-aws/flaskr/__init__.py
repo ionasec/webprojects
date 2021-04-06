@@ -1,7 +1,5 @@
 import os
 
-IMAGE_FOLDER = 'image_folder'
-
 from flask import Flask
 
 
@@ -11,8 +9,13 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-        IMAGE_FOLDER=os.path.join(app.instance_path, IMAGE_FOLDER)
+        AWS_BUCKET_NAME='',
+        AWS_ACCESS_KEY='',
+        AWS_SECRET_ACCESS_KEY='',
+        AWS_DOMAIN=''
     )
+
+    print(app.config['AWS_BUCKET_NAME'])
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
