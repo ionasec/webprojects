@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
-from flaskr.s3 import get_image_folder,allowed_file
+from flaskr.s3 import allowed_file, upload_file_to_s3, create_presigned_post
 from flask import current_app, g
 
 import os
@@ -23,11 +23,15 @@ def index():
     ).fetchall()
     return render_template('blog/index.html', posts=posts)
 
-@bp.route('/<filename>/display')
-def display_image(filename):
- #   print('display_image filename: ' + filename)
-#	return redirect(url_for('static', filename='uploads/' + filename), code=301)
-    return redirect(request.url)
+
+@bp.route('/download/<resource>')
+def download_image(resource):
+    """ resource: name of the file to download"""
+    print("resources for download " + resource)
+    url = create_presigned_post(resource,current_app.config["S3_BUCKET"])
+    print("url is " + url)
+    return redirect(url, code=302)
+
 
 @bp.route('/create', methods=('GET', 'POST'))
 @login_required
@@ -48,15 +52,15 @@ def create():
         if image_file.filename == '':
             flash('No selected file')
             return redirect(request.url)
-        
-        filename = str(g.user['id']) + '.' + secure_filename(image_file.filename)
-    
-        if not allowed_file(image_file.filename):
-            flash('No allowed_file')
-            return redirect(request.url)
 
-        full_filename =  os.path.join(current_app.config['IMAGE_FOLDER'], filename)
-        image_file.save(full_filename)
+        if image_file and allowed_file(image_file.filename):
+            image_file.filename = str(g.user['id']) + '.' + secure_filename(image_file.filename)
+            upload_file_to_s3(image_file, current_app.config["S3_BUCKET"])
+            
+   #     print(image_file.filename)  
+   #     full_filename =  os.path.join(current_app.config['IMAGE_FOLDER'], filename)
+   #     image_file.save(filename)
+        
 
         if not title:
             error = 'Title is required.'
@@ -68,7 +72,7 @@ def create():
             db.execute(
                 'INSERT INTO post (title, body, image_file, author_id)'
                 ' VALUES (?, ?, ?, ?)',
-                (title, body, filename, g.user['id'])
+                (title, body, image_file.filename, g.user['id'])
             )
             db.commit()
             return redirect(url_for('blog.index'))

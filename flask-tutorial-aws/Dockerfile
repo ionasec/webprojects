@@ -13,15 +13,15 @@ COPY requirements.txt .
 COPY flaskr/ ./flaskr
 # copy bootstrap py
 COPY run.py .
+# copy configuration py
+#COPY config.py .
 
 # install dependencies
 RUN pip install -r requirements.txt
-
-
 
 ENV FLASK_APP=flaskr
 #RUN flask init-db
 
 # Specify the command to run on container start
-#CMD ["ls"]
+# CMD ["ls"]
 CMD [ "python", "run.py" ]

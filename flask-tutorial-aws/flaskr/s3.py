@@ -1,52 +1,52 @@
-
-import os
-from flask import Flask, flash, request, redirect, url_for
-from flask import current_app, g
-from werkzeug.utils import secure_filename
 import boto3, botocore
+from flask import current_app, g
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 
-s3 = boto3.client(
-    "s3",
-    aws_access_key_id=current_app.config['AWS_ACCESS_KEY'],
-    aws_secret_access_key=current_app.config['AWS_SECRET_ACCESS_KEY']
-)
 
-def upload_file_to_s3(file, acl="public-read"):
-    filename = secure_filename(file.filename)
-    try:
-        s3.upload_fileobj(
-            file,
-            os.getenv("AWS_BUCKET_NAME"),
-            file.filename,
-            ExtraArgs={
-                "ACL": acl,
-                "ContentType": file.content_type
-            }
+def get_s3():
+    if 's3' not in g:
+        g.s3 = boto3.client(
+        "s3",
+        aws_access_key_id=current_app.config["S3_KEY"],
+        aws_secret_access_key=current_app.config["S3_SECRET"],
+        region_name ='eu-central-1'
         )
-
-    except Exception as e:
-        # This is a catch all exception, edit this part to fit your needs.
-        print("Something Happened: ", e)
-        return e
-    
-
-    # after upload file to s3 bucket, return filename of the uploaded file
-    return file.filename
-     
-     r1r
+    return g.s3
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def upload_file_to_s3(file, bucket_name, acl="public-read"):
 
-def get_image_folder():
-    print(app.config['SECRET_KEY'])
+    """
+    Docs: http://boto3.readthedocs.io/en/latest/guide/s3.html
+    """
+    print(file.filename)
+    print(bucket_name)
 
-    if 'image_folder' not in g:
-        g.image_folder = current_app.config['IMAGE_FOLDER'],
+    try:
+        s3 = get_s3()
+        s3.upload_fileobj(
+            file,
+            bucket_name,
+            file.filename
+        )
+    except Exception as e:
+        print("Something Happened: ", e)
+        return e
 
-    return g.image_folder
+    return "{}{}".format(current_app.config["S3_LOCATION"], file.filename)
+
+
+
+def create_presigned_post(resource, bucket_name, expiration=100):
+    try:
+        s3 = get_s3()
+        response = s3.generate_presigned_url('get_object', Params = {'Bucket': bucket_name, 'Key': resource}, ExpiresIn = 100)
+    except Exception as e:
+        return None
+
+    return response
