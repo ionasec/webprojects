@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title">
+  Flask Login Example
+</h1>
+<h2 class="subtitle">
+  Easy authentication and authorization in Flask.
+</h2>
+<a href="{{ url_for('blog.create') }}" class="navbar-item">
+  Create Blog
+</a>
+<a href="{{ url_for('blog.create_textonly') }}" class="navbar-item">
+  Create Blog textonly
+</a>
+
+{% for post in posts %}
+<article class="post">
+  <header>
+    <div>
+      <h1>{{ post['title'] }}</h1>
+      <div class="about">by {{ post['username'] }} on {{ post['timestamp']}}</div>
+      <img src="{{ post['signed_url'] }}" height="120" width="120">
+    </div>
+  </header>
+  <p class="body">{{ post['body'] }}</p>
+</article>
+{% if not loop.last %}
+  <hr>
+{% endif %}
+{% endfor %}
+{% endblock %}

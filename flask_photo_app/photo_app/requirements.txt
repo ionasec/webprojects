@@ -1,0 +1,9 @@
+requests
+flask
+Flask-WTF
+Pillow
+flask-login
+python_jose
+boto3
+#flask-lambda
+#flask_serverless
